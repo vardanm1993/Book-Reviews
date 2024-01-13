@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
@@ -10,14 +11,14 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request) :View
     {
         $title = $request->input('title');
-        $filter = $request->input('filter','');
+        $filter = $request->input('filter', '');
 
         $books = Book::when(
             $title,
-            fn( $query, string $title) => $query->title($title)
+            fn($query, string $title) => $query->title($title)
         );
 
         $books = match ($filter) {
@@ -29,8 +30,8 @@ class BookController extends Controller
         };
 
 
-
-        $books = $books->get();
+        $cacheKey = 'books:' . $filter . ':' . $title;
+        $books = cache()->remember($cacheKey, 3600, fn() => $books->get());
 
         return view('books.index', compact('books'));
     }
@@ -54,14 +55,14 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)
+    public function show(Book $book): View
     {
-        return view('books.show',
-            [
-                'book' => $book->load([
-                    'reviews' => fn($query) => $query->latest()
-                ])
-            ]);
+        $cacheKey = 'book:' . $book->id;
+        $book = cache()->remember($cacheKey, 3600, fn() => $book->load([
+            'reviews' => fn($query) => $query->latest()
+        ]));
+
+        return view('books.show', compact('book'));
     }
 
     /**
