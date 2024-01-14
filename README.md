@@ -13,16 +13,20 @@ composer install
 
 ./vendor/bin/sail  up -d
 
-
 # step 4
+
+./vendor/bin/sail  artisan key:generate
+
+
+# step 5
 
 sail npm install
 
-# step 5
+# step 6
 
 sail npm run dev
 
 
-# step 6
+# step 7
 
 http://localhost
