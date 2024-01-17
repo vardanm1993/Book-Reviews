@@ -17,16 +17,19 @@ composer install
 
 ./vendor/bin/sail  artisan key:generate
 
-
 # step 5
+
+./vendor/bin/sail  artisan migrate
+
+# step 6
 
 sail npm install
 
-# step 6
+# step 7
 
 sail npm run dev
 
 
-# step 7
+# step 8
 
 http://localhost
